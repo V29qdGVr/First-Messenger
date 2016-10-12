@@ -1,38 +1,33 @@
 package net.kazior.messenger.view;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.KeyStroke;
 
 public class View extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private final int width = 320;
-	private final int height = 640;
+	private String nick;
 
-	private String username;
+	private final int width = 300;
+	private final int height = 450;
 
-	private JPanel panel;
-	private JTextArea chatArea;
-	private JScrollPane scrollChatPane;
-	private JTextArea messageArea;
-	private JScrollPane scrollMessagePane;
-	private JButton sendButton;
+	private LoadingPanel loadingPanel;
+	private LogInPanel logInPanel;
+	private SignUpPanel1 signUpPanel1;
+	private SignUpPanel2 signUpPanel2;
+	private MainPanel mainPanel;
+
 
 	public View() {
 
 		setTitle("Messenger");
-		initAndAddComponents();
+		init();
+		showLogInPanel();
 
 		setResizable(false);
 		pack();
@@ -41,60 +36,98 @@ public class View extends JFrame {
 		setVisible(true);
 	}
 
-	private void initAndAddComponents() {
-
-		panel = new JPanel();
-
-		chatArea = new JTextArea();
-		chatArea.setFont(new Font("Courier New", Font.BOLD, 18));
-		chatArea.setEditable(false);
-		chatArea.setLineWrap(true);
-		scrollChatPane = new JScrollPane(chatArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-		messageArea = new JTextArea();
-		messageArea.setFont(new Font("Courier New", Font.BOLD, 16));
-		messageArea.setLineWrap(true);
-		scrollMessagePane = new JScrollPane(messageArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-		sendButton = new JButton("Send");
-
-		panel.setPreferredSize(new Dimension(width, height));
-		scrollChatPane.setPreferredSize(new Dimension(width, height / 4 * 3));
-		scrollMessagePane.setPreferredSize(new Dimension(width, height / 8));
-		sendButton.setPreferredSize(new Dimension(width, height / 8));
-
-		panel.setLayout(new BorderLayout());
-		panel.add(scrollChatPane, BorderLayout.NORTH);
-		panel.add(scrollMessagePane, BorderLayout.CENTER);
-		panel.add(sendButton, BorderLayout.SOUTH);
-
-		add(panel);
-	}
-
-	public void addSendButtonListener(ActionListener listener) {
-		sendButton.addActionListener(listener);
-	}
-
-	public JTextArea getChatArea() {
-		return chatArea;
+	private void init() {
+		loadingPanel = new LoadingPanel(width, height);
+		logInPanel = new LogInPanel(width, height);		
+		signUpPanel1 = new SignUpPanel1(width,height);
+		signUpPanel2 = new SignUpPanel2(width,height);
+		mainPanel = new MainPanel(width, height);
 	}
 	
-	public JTextArea getMessageArea() {
-		return messageArea;
+	public void showLoadingPanel() {
+		remove(logInPanel);
+		remove(signUpPanel1);
+		remove(signUpPanel2);
+		remove(mainPanel);
+		add(loadingPanel);
+		loadingPanel.revalidate();
+		loadingPanel.repaint();
+
+	}
+
+	public void showLogInPanel() {
+		remove(loadingPanel);
+		remove(signUpPanel1);
+		remove(signUpPanel2);
+		remove(mainPanel);
+		add(logInPanel);
+		logInPanel.revalidate();
+		logInPanel.repaint();
+	}
+
+	public void showSignUpPanel1() {
+		remove(loadingPanel);
+		remove(logInPanel);
+		remove(signUpPanel2);
+		remove(mainPanel);
+		add(signUpPanel1);
+		signUpPanel1.revalidate();
+		signUpPanel1.repaint();
 	}
 	
-	public JButton getSendButon() {
-		return sendButton;
+	public void showSignUpPanel2() {
+		remove(loadingPanel);
+		remove(logInPanel);
+		remove(signUpPanel1);
+		remove(mainPanel);
+		add(signUpPanel2);
+		signUpPanel2.revalidate();
+		signUpPanel2.repaint();
 	}
 
-	public String getUsername() {
-		return username;
+	public void showMainPanel() {
+		remove(loadingPanel);
+		remove(logInPanel);
+		remove(signUpPanel1);
+		remove(signUpPanel2);
+		add(mainPanel);
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 
-	public void askForUsername() {
-		username = JOptionPane.showInputDialog("Podaj swoje imiê");
+	public void addButtonsListener(ActionListener listener) {
+		
+		logInPanel.getLogInButton().addActionListener(listener);
+		logInPanel.getSignUpButton().addActionListener(listener);
+		
+		signUpPanel1.getContinueButton().addActionListener(listener);
+		signUpPanel1.getBackButton().addActionListener(listener);
+		
+		signUpPanel2.getSubmitButton().addActionListener(listener);
+		signUpPanel2.getBackButton().addActionListener(listener);
+		
+		mainPanel.getSendButton().addActionListener(listener);
+	}
+
+	public void bindEnterActionToMessageArea(AbstractAction action) {
+		mainPanel.getMessageArea().getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "doEnterAction");
+		mainPanel.getMessageArea().getActionMap().put("doEnterAction", action);
+	}
+	
+	public LogInPanel getLogInPanel() {
+		return logInPanel;
+	}
+	
+	public SignUpPanel1 getSignUpPanel1() {
+		return signUpPanel1;
+	}
+	
+	public SignUpPanel2 getSignUpPanel2() {
+		return signUpPanel2;
+	}
+	
+	public MainPanel getMainPanel() {
+		return mainPanel;
 	}
 
 	public boolean askYesNoQuestion(String title, String question) {
@@ -104,5 +137,13 @@ public class View extends JFrame {
 			return true;
 		else
 			return false;
+	}
+	
+	public String getNick() {
+		return nick;
+	}
+	
+	public void setNick(String nick) {
+		this.nick = nick;
 	}
 }
